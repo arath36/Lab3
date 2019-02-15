@@ -1,5 +1,5 @@
 ;****************** main.s ***************
-; Program written by: Rohan Narayanan
+; Program written by: Rohan Narayanan and Austin Rath
 ; Date Created: 2/4/2017
 ; Last Modified: 2/14/2019
 ; Brief description of the program
