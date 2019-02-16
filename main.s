@@ -42,6 +42,9 @@ GPIO_PORTF_CR_R    EQU 0x40025524
 GPIO_LOCK_KEY      EQU 0x4C4F434B  ; Unlocks the GPIO_CR register
 SYSCTL_RCGCGPIO_R  EQU 0x400FE608
 
+
+NUMDELAY 		   EQU 700000
+NUMDELAY2		   EQU 300000	
        IMPORT  TExaS_Init
        THUMB
        AREA    DATA, ALIGN=2
@@ -89,22 +92,59 @@ Start
 	AND R1, #0xEF
 	STRB R1, [R0]
 	
+	
+	LDR R3, =OFFDELAY
+	LDR R4, =ONDELAY
 
      CPSIE  I    ; TExaS voltmeter, scope runs on interrupts
+
+
 loop  
 ; main engine goes here
+			LDR R0, =GPIO_PORTE_DATA_R
+			LDRB R1, [R0]
+			AND R1, #0x04
+			CMP R1, #0
+			BEQ INITIAL
+   
+			ADD R3, #4
+			ADD R4, #4
+			LDR R5, [R4]
+			CMP R5, #0
+			BNE PRESSED
+			LDR R3, =OFFDELAY
+			LDR R4, =ONDELAY
+			
+PRESSED		LDRB R1, [R0]
+			AND R1, #0x04
+			CMP R1, #0
+			BNE PRESSED
+			
    
    
-			MOV R0, #50000
+INITIAL		LDR R0, [R3]
 DELAY		SUBS R0, #1
 			BNE DELAY
 			LDR R0, =GPIO_PORTE_DATA_R
 			LDRB R1, [R0]
-			EOR R1, #0x08
+			ORR R1, #0x08
+			STRB R1, [R0]
+			
+			LDR R0, [R4]
+DELAY2		SUBS R0, #1
+			BNE DELAY2
+			LDR R0, =GPIO_PORTE_DATA_R
+			LDRB R1, [R0]
+			AND R1, #0xF7
 			STRB R1, [R0]
 			B    loop
-
+			
+			
+OFFDELAY	DCD 700000, 500000, 300000, 100000, 900000, 0
+	
+ONDELAY		DCD 300000, 500000, 700000, 900000, 100000, 0
       
      ALIGN      ; make sure the end of this section is aligned
      END        ; end of file
+		 
 
